@@ -1,0 +1,11 @@
+# Dependencies and build output
+node_modules/
+.next/
+
+# Python
+__pycache__/
+*.pyc
+
+# Secrets and local env
+.env
+*.key

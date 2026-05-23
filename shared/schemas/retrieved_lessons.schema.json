@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oneline.dev/schemas/retrieved_lessons.schema.json",
+  "title": "RetrievedLessons",
+  "description": "Retriever output. Model gemini-3.5-flash, thinking low, over a tag-based BM25 pass on knowledge_base.json. Returns the top-K (default 5) lessons relevant to the plan, only those at or above relevance 0.5. The implementer prompt injects this list verbatim. Documented in shared/schemas/README.md. No em dashes in any string value.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["retrieved_lessons"],
+  "properties": {
+    "retrieved_lessons": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "lesson_text", "good_pattern", "relevance_score"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^lesson_[0-9]+$",
+            "description": "Id of the source lesson in knowledge_base.json."
+          },
+          "lesson_text": { "type": "string" },
+          "good_pattern": { "type": "string" },
+          "relevance_score": {
+            "type": "number",
+            "minimum": 0.5,
+            "maximum": 1,
+            "description": "Relevance to this plan. Only lessons at or above 0.5 are returned."
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "retrieved_lessons": [
+        {
+          "id": "lesson_001",
+          "lesson_text": "Primary action must sit in the bottom third for thumb reach. Top-right buttons fail on tall layouts.",
+          "good_pattern": "bottom-center sticky full-width action",
+          "relevance_score": 0.9
+        }
+      ]
+    }
+  ]
+}

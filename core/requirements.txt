@@ -1,0 +1,5 @@
+# Core dependencies. Product intelligence is gemini-3.5-flash via google-genai.
+# The orchestration ADK (google-adk) is optional for ParallelAgent and is added
+# when the parallel build path lands.
+google-genai>=0.3.0
+jsonschema>=4.18.0

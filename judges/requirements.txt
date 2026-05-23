@@ -1,0 +1,8 @@
+# Judge dependencies. All model based judges and the curator use gemini-3.5-flash
+# via google-genai. jsonschema validates outputs against the shared contract.
+google-genai>=0.3.0
+jsonschema>=4.18.0
+
+# Playwright runs the functionality test INSIDE the managed sandbox, not in this
+# process. The sandbox image provides it; this line documents the sandbox need.
+# playwright>=1.40.0

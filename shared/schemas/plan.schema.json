@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oneline.dev/schemas/plan.schema.json",
+  "title": "Plan",
+  "description": "Planner output. Model gemini-3.5-flash, thinking high. A plain-language personal need goes in, a structured build plan comes out. Documented in shared/schemas/README.md. All eight keys are always present, even on rejection. No em dashes in any string value.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "rejected",
+    "rejection_reason",
+    "suggested_alternative",
+    "tool_category",
+    "core_interactions",
+    "data_model",
+    "success_criteria",
+    "candidate_strategies"
+  ],
+  "properties": {
+    "rejected": {
+      "type": "boolean",
+      "description": "True when the request needs auth, multi-user state, server logic, real-time multiplayer, a database, payments, or implies shipping to other users."
+    },
+    "rejection_reason": {
+      "type": ["string", "null"],
+      "description": "Why the request was rejected, or null when accepted."
+    },
+    "suggested_alternative": {
+      "type": ["string", "null"],
+      "description": "An in-scope single-screen alternative that keeps the spirit of the request, or null when accepted."
+    },
+    "tool_category": {
+      "$ref": "#/$defs/tool_category"
+    },
+    "core_interactions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "maxItems": 5,
+      "description": "Two to three core interactions the tool must support. Feeds the functionality judge tests."
+    },
+    "data_model": {
+      "type": "string",
+      "description": "The data the tool keeps, assuming localStorage only. No backend, no database."
+    },
+    "success_criteria": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "How we know the tool actually solves the need. Drives the Playwright functionality checks."
+    },
+    "candidate_strategies": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "description": "Two to three implementation strategies that differ meaningfully for candidate diversity.",
+      "items": { "$ref": "#/$defs/candidate_strategy" }
+    }
+  },
+  "$defs": {
+    "tool_category": {
+      "type": "string",
+      "description": "Inferred tool category from the shared tag vocabulary.",
+      "enum": [
+        "timer",
+        "tracker",
+        "calculator",
+        "flashcards",
+        "checklist",
+        "decision_tool",
+        "quiz",
+        "single_user_game",
+        "log",
+        "converter",
+        "randomizer",
+        "planner",
+        "display_only",
+        "utility"
+      ]
+    },
+    "candidate_strategy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "framework", "ux_emphasis"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "enum": ["A", "B", "C"],
+          "description": "Strategy id. Becomes the candidate_id downstream."
+        },
+        "framework": {
+          "type": "string",
+          "enum": ["vanilla_html", "tailwind_cdn"],
+          "description": "Build approach for this candidate."
+        },
+        "ux_emphasis": {
+          "type": "string",
+          "enum": ["speed_minimal", "polish", "minimal_whitespace"],
+          "description": "Layout and density emphasis. Candidates share tokens and differ only here."
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "rejected": false,
+      "rejection_reason": null,
+      "suggested_alternative": null,
+      "tool_category": "timer",
+      "core_interactions": [
+        "Start and pause the interval timer",
+        "Advance through custom rounds"
+      ],
+      "data_model": "Rounds and durations held in localStorage. Current round index in memory.",
+      "success_criteria": [
+        "Starting the timer counts down the first round",
+        "Completing a round advances to the next"
+      ],
+      "candidate_strategies": [
+        { "id": "A", "framework": "vanilla_html", "ux_emphasis": "speed_minimal" },
+        { "id": "B", "framework": "tailwind_cdn", "ux_emphasis": "polish" },
+        { "id": "C", "framework": "tailwind_cdn", "ux_emphasis": "minimal_whitespace" }
+      ]
+    }
+  ]
+}

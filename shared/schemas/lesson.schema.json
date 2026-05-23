@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oneline.dev/schemas/lesson.schema.json",
+  "title": "Lesson",
+  "description": "A knowledge base entry: one universal mobile-tool UX lesson learned from a losing candidate. This is the stored form of a knowledge base entry, persisted in shared/knowledge_base.json. The curator (gemini-3.5-flash, thinking high) emits the curator_output subset; the core write helper adds id, created_at, applied_count, and prevented_repeats when it appends to knowledge_base.json. Lessons are universal patterns, never specific to one request. No em dashes in any string value.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "created_at",
+    "tool_category",
+    "lesson_class",
+    "ux_anti_pattern",
+    "tags",
+    "lesson_text",
+    "bad_pattern",
+    "good_pattern",
+    "severity",
+    "score_delta",
+    "applied_count",
+    "prevented_repeats"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^lesson_[0-9]+$",
+      "description": "Stable id, for example lesson_001. Assigned by the core write helper."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp. Assigned by the core write helper."
+    },
+    "tool_category": { "$ref": "#/$defs/tool_category" },
+    "lesson_class": {
+      "type": "string",
+      "enum": ["functionality", "ux_clarity", "design_coherence"],
+      "description": "Which judge axis this lesson improves."
+    },
+    "ux_anti_pattern": {
+      "$ref": "#/$defs/anti_pattern",
+      "description": "The named failure pattern this lesson guards against."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "Retrieval tags from the shared vocabulary. Used by the tag-based BM25 retriever."
+    },
+    "lesson_text": {
+      "type": "string",
+      "description": "One to two sentence rule the next implementer should follow."
+    },
+    "bad_pattern": {
+      "type": "string",
+      "description": "The concrete pattern that failed."
+    },
+    "good_pattern": {
+      "type": "string",
+      "description": "The concrete pattern to use instead."
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    },
+    "score_delta": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 0,
+      "description": "Score impact observed for the loser, a penalty at or below 0."
+    },
+    "applied_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "How many later builds had this lesson injected. Starts at 0."
+    },
+    "prevented_repeats": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "How many later builds avoided this anti-pattern after injection. Starts at 0. Drives the repeat-failures metric."
+    }
+  },
+  "$defs": {
+    "tool_category": {
+      "type": "string",
+      "enum": [
+        "timer",
+        "tracker",
+        "calculator",
+        "flashcards",
+        "checklist",
+        "decision_tool",
+        "quiz",
+        "single_user_game",
+        "log",
+        "converter",
+        "randomizer",
+        "planner",
+        "display_only",
+        "utility"
+      ]
+    },
+    "anti_pattern": {
+      "type": "string",
+      "description": "UX anti-patterns plus design anti-patterns from the shared vocabulary.",
+      "enum": [
+        "buried_primary_action",
+        "cluttered_layout",
+        "tiny_touch_targets",
+        "ambiguous_cta",
+        "missing_feedback_state",
+        "generic_button_text",
+        "thumb_unreachable",
+        "overflow_scrolling",
+        "hidden_state",
+        "production_app_smell",
+        "palette_drift",
+        "typography_inconsistency",
+        "cluttered_spacing",
+        "low_contrast"
+      ]
+    },
+    "curator_output": {
+      "type": "object",
+      "description": "What the curator emits per loser, or null when nothing generalizable is found. The core write helper enriches this into a full Lesson by adding id, created_at, applied_count 0, and prevented_repeats 0. Documented in shared/schemas/README.md.",
+      "additionalProperties": false,
+      "required": [
+        "tool_category",
+        "lesson_class",
+        "ux_anti_pattern",
+        "tags",
+        "lesson_text",
+        "bad_pattern",
+        "good_pattern",
+        "severity",
+        "score_delta"
+      ],
+      "properties": {
+        "tool_category": { "$ref": "#/$defs/tool_category" },
+        "lesson_class": {
+          "type": "string",
+          "enum": ["functionality", "ux_clarity", "design_coherence"]
+        },
+        "ux_anti_pattern": { "$ref": "#/$defs/anti_pattern" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "lesson_text": { "type": "string" },
+        "bad_pattern": { "type": "string" },
+        "good_pattern": { "type": "string" },
+        "severity": { "type": "string", "enum": ["low", "medium", "high"] },
+        "score_delta": { "type": "number", "minimum": -1, "maximum": 0 }
+      }
+    }
+  },
+  "examples": [
+    {
+      "id": "lesson_001",
+      "created_at": "2026-05-23T13:10:00Z",
+      "tool_category": "tracker",
+      "lesson_class": "ux_clarity",
+      "ux_anti_pattern": "buried_primary_action",
+      "tags": ["mobile_first", "tracker", "primary_cta", "touch_targets"],
+      "lesson_text": "Primary action must sit in the bottom third for thumb reach. Top-right buttons fail on tall layouts.",
+      "bad_pattern": "top-right action button on a tall single-screen layout",
+      "good_pattern": "bottom-center sticky full-width action",
+      "severity": "high",
+      "score_delta": -0.4,
+      "applied_count": 0,
+      "prevented_repeats": 0
+    }
+  ]
+}

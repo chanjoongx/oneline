@@ -1,0 +1,343 @@
+/* =====================================================================
+   Oneline base.css - the shared visual language for every generated tool.
+   These tokens are the shared design system, the source of truth for every tool.
+
+   The sandbox module inlines this into every generated single-file tool.
+   The judges module scores conformance to it (design coherence judge).
+   Do not invent palettes or type. Tools differ only in layout, interaction
+   structure, and density, never in color or typography.
+
+   Rules in one breath: dark only, one accent per tool used only for the
+   primary action and the single most important live value, exactly one hero
+   value in mono around 48px, the fixed type scale, spacing on the 8px grid,
+   primary action in the bottom third at least 52px tall, motion only to
+   confirm an action. No em dashes anywhere. Hyphens only.
+   ===================================================================== */
+
+:root {
+  /* Base surfaces, dark */
+  --bg:          #0A0A0B;   /* page background */
+  --surface:     #141416;   /* cards, raised areas */
+  --surface-2:   #1C1C1F;   /* nested or hovered surfaces */
+  --border:      #2A2A2E;   /* hairline separators */
+
+  /* Text */
+  --text:        #F5F5F7;   /* primary text */
+  --text-muted:  #9A9AA2;   /* secondary text, labels */
+  --text-faint:  #5C5C64;   /* tertiary, placeholders */
+
+  /* Accent, exactly one per tool. Implementer overrides --accent with one
+     hex from the approved set below. --accent-ink is text on accent fills. */
+  --accent:      #5B8DEF;   /* default blue; override per tool */
+  --accent-ink:  #0A0A0B;   /* near-black text on accent fills */
+
+  /* Feedback */
+  --positive:    #3FB950;
+  --warning:     #D29922;
+  --danger:      #F85149;
+
+  /* Geometry */
+  --radius:      12px;      /* cards, inputs, primary button */
+  --radius-pill: 999px;     /* toggles, chips */
+  --unit:        8px;       /* base spacing unit; use multiples only */
+
+  /* Spacing scale, multiples of --unit (8px). No in-between values. */
+  --space-1:     8px;
+  --space-2:     16px;
+  --space-3:     24px;      /* outer page padding */
+  --space-4:     32px;
+  --space-6:     48px;
+
+  /* Layout */
+  --page-pad:    24px;      /* outer page padding, sides */
+  --content-max: 480px;     /* max content width, centered */
+
+  /* Type families */
+  --font:      -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, monospace;
+
+  /* Type scale, strict. No in-between sizes.
+     hero is reserved for the single most glanceable value, one per tool. */
+  --t-hero-size:    48px;
+  --t-hero-weight:  700;
+  --t-title-size:   24px;
+  --t-title-weight: 600;
+  --t-body-size:    16px;
+  --t-body-weight:  400;
+  --t-label-size:   13px;
+  --t-label-weight: 500;
+
+  /* Motion, restrained. Only to confirm an action or show state change. */
+  --press:  80ms ease-out;   /* button press */
+  --toggle: 120ms ease;      /* state toggle cross-fade */
+  --change: 150ms ease;      /* item add or remove */
+}
+
+/* ---------------------------------------------------------------------
+   Approved accent palette. Pick exactly ONE per tool and assign it to
+   --accent. Never use more than one accent in a single tool. Never use a
+   hex outside this set. Green equals --positive, red equals --danger by
+   design; that is intended, not a second accent.
+
+     Blue   #5B8DEF  default, neutral, planners, calculators
+     Green  #3FB950  trackers, habits, progress, timers counting up
+     Amber  #E3A008  countdowns, reminders, time pressure
+     Violet #A371F7  learning, flashcards, focus
+     Red    #F85149  intervals, workouts, urgency (use sparingly)
+     Teal   #2DD4BF  logs, notes, calm utilities
+
+   These are exposed as variables for reference and tooling. The active
+   accent is still --accent; do not paint with several of these at once.
+   --------------------------------------------------------------------- */
+:root {
+  --accent-blue:   #5B8DEF;
+  --accent-green:  #3FB950;
+  --accent-amber:  #E3A008;
+  --accent-violet: #A371F7;
+  --accent-red:    #F85149;
+  --accent-teal:   #2DD4BF;
+}
+
+/* ---------------------------------------------------------------------
+   Reset and base
+   --------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--t-body-size);
+  font-weight: var(--t-body-weight);
+  line-height: 1.5;
+  text-align: left;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile-first container. Max content width 480px, centered, 24px outer
+   padding, safe-area aware top and bottom. Built for iPhone Safari at
+   390px width, used one-handed. */
+.ol-app {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding:
+    calc(env(safe-area-inset-top) + var(--space-3))
+    var(--page-pad)
+    calc(env(safe-area-inset-bottom) + var(--space-3));
+}
+
+/* ---------------------------------------------------------------------
+   Typography
+   --------------------------------------------------------------------- */
+.ol-hero {
+  font-family: var(--font-mono);
+  font-size: var(--t-hero-size);
+  font-weight: var(--t-hero-weight);
+  line-height: 1;
+  color: var(--text);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* The single live value when it counts changes instantly, no easing on digits. */
+.ol-hero--live {
+  transition: none;
+}
+
+.ol-title {
+  font-size: var(--t-title-size);
+  font-weight: var(--t-title-weight);
+  line-height: 1.2;
+  color: var(--text);
+  margin: 0;
+}
+
+.ol-body {
+  font-size: var(--t-body-size);
+  font-weight: var(--t-body-weight);
+  color: var(--text);
+}
+
+.ol-label {
+  font-size: var(--t-label-size);
+  font-weight: var(--t-label-weight);
+  color: var(--text-muted);
+}
+
+.ol-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------
+   Buttons. Primary lives in the bottom third, full width or near it,
+   at least 52px tall, accent fill. Touch targets never below 44px.
+   --------------------------------------------------------------------- */
+.ol-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  width: 100%;
+  min-height: 52px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius);
+  font-family: var(--font);
+  font-size: var(--t-body-size);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--press), background-color var(--toggle);
+}
+
+.ol-btn:active {
+  transform: scale(0.98);
+}
+
+/* Primary: the one obvious action. Accent fill, near-black ink. */
+.ol-btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* Secondary / ghost: recedes. Hairline border, text color. */
+.ol-btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.ol-btn-secondary:hover,
+.ol-btn-secondary:active {
+  background: var(--surface-2);
+}
+
+.ol-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Bottom dock. Keeps the primary action in the thumb zone, safe-area aware. */
+.ol-dock {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  padding-top: var(--space-2);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ---------------------------------------------------------------------
+   Card. Surface background, hairline border. Nested rows use surface-2.
+   --------------------------------------------------------------------- */
+.ol-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-2);
+}
+
+.ol-row {
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  padding: var(--space-2);
+}
+
+/* ---------------------------------------------------------------------
+   Input / field. 48px tall, surface-2, hairline border, accent focus.
+   16px text so iOS Safari does not zoom on focus.
+   --------------------------------------------------------------------- */
+.ol-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 var(--space-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--t-body-size);
+  line-height: 1.2;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  transition: border-color var(--toggle);
+}
+
+.ol-input::placeholder {
+  color: var(--text-faint);
+}
+
+.ol-input:focus {
+  border-color: var(--accent);
+}
+
+/* ---------------------------------------------------------------------
+   Chip / pill. Quiet metadata: timer rounds, tags, status.
+   --------------------------------------------------------------------- */
+.ol-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 var(--space-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  font-size: var(--t-label-size);
+  font-weight: var(--t-label-weight);
+}
+
+.ol-chip--active {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+/* ---------------------------------------------------------------------
+   State helpers
+   --------------------------------------------------------------------- */
+/* Completed items fade to muted (checklist, log). */
+.ol-done {
+  color: var(--text-muted);
+  transition: color var(--toggle), opacity var(--toggle);
+}
+
+/* Item add or remove: height and opacity, nothing bouncy. */
+.ol-enter,
+.ol-leave {
+  transition: opacity var(--change), height var(--change);
+}
+
+/* ---------------------------------------------------------------------
+   Motion preference. Disable all motion when the user asks for less.
+   --------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oneline.dev/schemas/selection.schema.json",
+  "title": "Selection",
+  "description": "Deterministic selector output. Functionality gate first: candidates below 0.9 are disqualified. Among qualifiers, final = 0.40 functionality + 0.35 ux_clarity + 0.25 design_coherence, tie-break on ux_clarity. On success, winner is a scored candidate and losers and rationale are present. When no candidate clears the gate, winner is null and reason explains it. Documented in shared/schemas/README.md. No em dashes in any string value.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["winner"],
+  "properties": {
+    "winner": {
+      "oneOf": [
+        { "$ref": "#/$defs/scored_candidate" },
+        { "type": "null" }
+      ],
+      "description": "The selected candidate, or null when all candidates failed the functionality gate."
+    },
+    "losers": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/scored_candidate" },
+      "description": "Every candidate that is not the winner. Routed to the curator. Present on success."
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Short human-readable reason, for example Selected B at 0.92. Present on success."
+    },
+    "reason": {
+      "type": ["string", "null"],
+      "description": "Set only when winner is null, for example All candidates failed the functionality gate. Try a simpler version of the request."
+    }
+  },
+  "if": {
+    "properties": { "winner": { "type": "null" } }
+  },
+  "then": {
+    "required": ["winner", "reason"]
+  },
+  "else": {
+    "required": ["winner", "losers", "rationale"]
+  },
+  "$defs": {
+    "unit_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "scored_candidate": {
+      "type": "object",
+      "description": "A Candidate merged with its headline judge scores and the computed final_score. final_score is present for candidates that cleared the gate; losers that failed the gate may omit it. Extra fields (full judge detail) may ride along.",
+      "additionalProperties": true,
+      "required": [
+        "candidate_id",
+        "functionality_score",
+        "ux_clarity_score",
+        "design_coherence_score"
+      ],
+      "properties": {
+        "candidate_id": { "type": "string", "enum": ["A", "B", "C"] },
+        "html": { "type": "string" },
+        "environment_id": { "type": "string" },
+        "steps": { "type": "integer", "minimum": 0 },
+        "rationale": { "type": "string" },
+        "accent": {
+          "type": "string",
+          "enum": ["#5B8DEF", "#3FB950", "#E3A008", "#A371F7", "#F85149", "#2DD4BF"]
+        },
+        "functionality_score": { "$ref": "#/$defs/unit_score" },
+        "ux_clarity_score": { "$ref": "#/$defs/unit_score" },
+        "design_coherence_score": { "$ref": "#/$defs/unit_score" },
+        "final_score": { "$ref": "#/$defs/unit_score" }
+      }
+    }
+  },
+  "examples": [
+    {
+      "winner": {
+        "candidate_id": "B",
+        "environment_id": "env_8d2f1a",
+        "functionality_score": 1.0,
+        "ux_clarity_score": 0.92,
+        "design_coherence_score": 0.88,
+        "final_score": 0.94
+      },
+      "losers": [
+        {
+          "candidate_id": "A",
+          "environment_id": "env_1b7c33",
+          "functionality_score": 1.0,
+          "ux_clarity_score": 0.78,
+          "design_coherence_score": 0.7,
+          "final_score": 0.85
+        },
+        {
+          "candidate_id": "C",
+          "environment_id": "env_4a90ee",
+          "functionality_score": 0.5,
+          "ux_clarity_score": 0.8,
+          "design_coherence_score": 0.82
+        }
+      ],
+      "rationale": "Selected B at 0.94",
+      "reason": null
+    },
+    {
+      "winner": null,
+      "reason": "All candidates failed the functionality gate. Try a simpler version of the request."
+    }
+  ]
+}

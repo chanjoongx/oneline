@@ -1,0 +1,5 @@
+# Sandbox module dependencies. Product intelligence is gemini-3.5-flash via the
+# Gemini Managed Agents API. google-genai must be the upgraded build that exposes
+# client.interactions. jsonschema validates Candidate output against shared/.
+google-genai>=0.3.0
+jsonschema>=4.18.0

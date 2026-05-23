@@ -1,0 +1,19 @@
+{
+  "lessons": [
+    {
+      "id": "lesson_001",
+      "created_at": "2026-05-23T13:10:00Z",
+      "tool_category": "tracker",
+      "lesson_class": "ux_clarity",
+      "ux_anti_pattern": "buried_primary_action",
+      "tags": ["mobile_first", "tracker", "primary_cta", "touch_targets"],
+      "lesson_text": "Primary action must sit in the bottom third for thumb reach. Top-right buttons fail on tall layouts.",
+      "bad_pattern": "top-right action button on a tall single-screen layout",
+      "good_pattern": "bottom-center sticky full-width action",
+      "severity": "high",
+      "score_delta": -0.4,
+      "applied_count": 0,
+      "prevented_repeats": 0
+    }
+  ]
+}

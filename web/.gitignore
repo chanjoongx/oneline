@@ -1,0 +1,21 @@
+# dependencies
+/node_modules
+
+# next build output
+/.next
+/out
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts.bak
+
+# local runtime state for the deploy client
+/.deploy_state.json
+/.tmp
+
+# env
+.env
+.env.local
+
+# os
+.DS_Store

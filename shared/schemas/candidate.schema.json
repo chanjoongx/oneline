@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oneline.dev/schemas/candidate.schema.json",
+  "title": "Candidate",
+  "description": "Implementer output, one per candidate. Each candidate is built by gemini-3.5-flash inside its own Gemini Managed Agents sandbox. The shape is the implementer's build_candidate output plus the one-line rationale from the implementer prompt. The candidate_id is the canonical identifier carried through the whole pipeline; it equals the strategy id from the Plan. environment_id is reused by the functionality judge so Playwright runs in the same sandbox that built the tool.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["candidate_id", "html", "environment_id"],
+  "properties": {
+    "candidate_id": {
+      "type": "string",
+      "enum": ["A", "B", "C"],
+      "description": "Canonical candidate identifier. Equals the strategy id from the Plan. The selector keys on this."
+    },
+    "html": {
+      "type": "string",
+      "description": "Complete single-file HTML tool with the shared token block inlined, one accent, one hero. No em dashes anywhere in the markup, text, or comments."
+    },
+    "environment_id": {
+      "type": "string",
+      "description": "Managed Agents environment id for the sandbox that built this candidate. Reused by the functionality judge."
+    },
+    "steps": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of agent steps the implementer took. Telemetry, optional."
+    },
+    "rationale": {
+      "type": "string",
+      "description": "One line naming the chosen accent and the layout decision. No em dashes."
+    },
+    "accent": {
+      "type": "string",
+      "enum": ["#5B8DEF", "#3FB950", "#E3A008", "#A371F7", "#F85149", "#2DD4BF"],
+      "description": "The single accent hex chosen from the approved set. Echoes the value assigned to --accent in the tool."
+    },
+    "framework": {
+      "type": "string",
+      "enum": ["vanilla_html", "tailwind_cdn"],
+      "description": "Framework used, echoed from the strategy. Optional."
+    },
+    "ux_emphasis": {
+      "type": "string",
+      "enum": ["speed_minimal", "polish", "minimal_whitespace"],
+      "description": "Emphasis used, echoed from the strategy. Optional."
+    }
+  },
+  "examples": [
+    {
+      "candidate_id": "B",
+      "html": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><style>:root{--bg:#0A0A0B;--accent:#F85149;--accent-ink:#0A0A0B}</style></head><body><main></main></body></html>",
+      "environment_id": "env_8d2f1a",
+      "steps": 6,
+      "rationale": "Rationale: red accent for workout urgency, hero clock centered with a single full-width Start timer in the thumb zone.",
+      "accent": "#F85149",
+      "framework": "tailwind_cdn",
+      "ux_emphasis": "polish"
+    }
+  ]
+}

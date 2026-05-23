@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oneline.dev/schemas/judge_scores.schema.json",
+  "title": "JudgeScores",
+  "description": "The full three-layer judge result for one candidate. Top-level headline scores (functionality_score, ux_clarity_score, design_coherence_score) are what the deterministic selector reads. The three detail objects carry the sub-scores and reasoning for the dashboard and the curator. Functionality is deterministic (Playwright in the sandbox). UX clarity is gemini-3.5-flash thinking high. Design coherence is gemini-3.5-flash thinking medium. Documented in shared/schemas/README.md. No em dashes in any string value.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "candidate_id",
+    "functionality_score",
+    "ux_clarity_score",
+    "design_coherence_score",
+    "functionality",
+    "ux_clarity",
+    "design_coherence"
+  ],
+  "properties": {
+    "candidate_id": {
+      "type": "string",
+      "enum": ["A", "B", "C"],
+      "description": "The candidate these scores belong to."
+    },
+    "functionality_score": {
+      "$ref": "#/$defs/unit_score",
+      "description": "Headline functionality score. Pass rate from the Playwright run. The selector gate is 0.9."
+    },
+    "ux_clarity_score": {
+      "$ref": "#/$defs/unit_score",
+      "description": "Headline UX clarity score."
+    },
+    "design_coherence_score": {
+      "$ref": "#/$defs/unit_score",
+      "description": "Headline design coherence score."
+    },
+    "functionality": { "$ref": "#/$defs/functionality_detail" },
+    "ux_clarity": { "$ref": "#/$defs/ux_clarity_detail" },
+    "design_coherence": { "$ref": "#/$defs/design_coherence_detail" }
+  },
+  "$defs": {
+    "unit_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "functionality_detail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["functionality_score", "passed", "failed", "screenshot"],
+      "description": "Deterministic. Playwright runs the inferred interactions inside the same Managed Agents sandbox that built the candidate.",
+      "properties": {
+        "functionality_score": {
+          "$ref": "#/$defs/unit_score",
+          "description": "passed divided by max(total, 1)."
+        },
+        "passed": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Names of the checks that passed."
+        },
+        "failed": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Names of the checks that failed."
+        },
+        "screenshot": {
+          "type": ["string", "null"],
+          "description": "Path or reference to the rendered screenshot at 390px, or null if unavailable."
+        }
+      }
+    },
+    "ux_clarity_detail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ux_clarity_score",
+        "sub_scores",
+        "production_app_smells",
+        "reasoning",
+        "improvement_suggestions"
+      ],
+      "description": "The grandmother test. Can a 70-year-old find and use the primary action within 30 seconds, no instruction.",
+      "properties": {
+        "ux_clarity_score": { "$ref": "#/$defs/unit_score" },
+        "sub_scores": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "primary_action_dominance",
+            "thumb_reach",
+            "touch_target_size",
+            "visual_simplicity",
+            "feedback_states",
+            "concrete_language"
+          ],
+          "properties": {
+            "primary_action_dominance": { "$ref": "#/$defs/unit_score" },
+            "thumb_reach": { "$ref": "#/$defs/unit_score" },
+            "touch_target_size": { "$ref": "#/$defs/unit_score" },
+            "visual_simplicity": { "$ref": "#/$defs/unit_score" },
+            "feedback_states": { "$ref": "#/$defs/unit_score" },
+            "concrete_language": { "$ref": "#/$defs/unit_score" }
+          }
+        },
+        "production_app_smells": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Each present smell (signup, email capture, onboarding, account features, share or invite, marketing copy) subtracts 0.1."
+        },
+        "reasoning": { "type": "string" },
+        "improvement_suggestions": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "design_coherence_detail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["design_coherence_score", "sub_scores", "system_violations", "reasoning"],
+      "description": "Conformance to the shared design system (shared/base.css). Not a taste contest, conformance plus restraint.",
+      "properties": {
+        "design_coherence_score": { "$ref": "#/$defs/unit_score" },
+        "sub_scores": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "token_conformance",
+            "hero_discipline",
+            "typography_consistency",
+            "spatial_consistency",
+            "restraint"
+          ],
+          "properties": {
+            "token_conformance": { "$ref": "#/$defs/unit_score" },
+            "hero_discipline": { "$ref": "#/$defs/unit_score" },
+            "typography_consistency": { "$ref": "#/$defs/unit_score" },
+            "spatial_consistency": { "$ref": "#/$defs/unit_score" },
+            "restraint": { "$ref": "#/$defs/unit_score" }
+          }
+        },
+        "system_violations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Concrete violations: a second accent, off-system color, decorative gradient, emoji as UI, light mode, no clear hero."
+        },
+        "reasoning": { "type": "string" }
+      }
+    }
+  },
+  "examples": [
+    {
+      "candidate_id": "B",
+      "functionality_score": 1.0,
+      "ux_clarity_score": 0.92,
+      "design_coherence_score": 0.88,
+      "functionality": {
+        "functionality_score": 1.0,
+        "passed": ["start_counts_down", "round_advances"],
+        "failed": [],
+        "screenshot": "/work/shot.png"
+      },
+      "ux_clarity": {
+        "ux_clarity_score": 0.92,
+        "sub_scores": {
+          "primary_action_dominance": 1.0,
+          "thumb_reach": 1.0,
+          "touch_target_size": 1.0,
+          "visual_simplicity": 0.8,
+          "feedback_states": 0.9,
+          "concrete_language": 1.0
+        },
+        "production_app_smells": [],
+        "reasoning": "Start timer is the largest element and sits in the bottom third. Rounds read as quiet chips.",
+        "improvement_suggestions": ["Add a brief flash when a round completes"]
+      },
+      "design_coherence": {
+        "design_coherence_score": 0.88,
+        "sub_scores": {
+          "token_conformance": 1.0,
+          "hero_discipline": 1.0,
+          "typography_consistency": 0.9,
+          "spatial_consistency": 0.8,
+          "restraint": 0.7
+        },
+        "system_violations": [],
+        "reasoning": "Single red accent, one mono hero clock, spacing on the 8px grid."
+      }
+    }
+  ]
+}

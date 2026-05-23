@@ -99,6 +99,13 @@ export default function Dashboard() {
             </div>
           )}
 
+          {state.status === "no_winner" && (
+            <div className="db-notice">
+              <h3>No candidate cleared the functionality gate</h3>
+              <p>{state.noWinnerReason || "Try a simpler version of the request."}</p>
+            </div>
+          )}
+
           <CandidateColumns candidates={state.candidates} strategies={strategies} />
 
           <ResultArea winner={winner} deployment={state.deployment} />

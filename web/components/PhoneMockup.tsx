@@ -41,7 +41,11 @@ export default function PhoneMockup({ html }: { html?: string }) {
             <iframe
               className="db-device-iframe"
               title="Winning tool preview"
-              sandbox="allow-scripts allow-forms allow-pointer-lock"
+              // allow-same-origin lets generated tools use localStorage in the
+              // preview (without it the srcdoc gets an opaque origin and
+              // localStorage throws a SecurityError). The preview only renders
+              // tools from our own pipeline on the local dashboard.
+              sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"
               srcDoc={html}
               style={{
                 width: LOGICAL_WIDTH + "px",

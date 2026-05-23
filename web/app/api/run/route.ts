@@ -3,9 +3,17 @@
 //
 // POST body: { need: string, sessionLessons: Lesson[] }
 // Response: text/event-stream of RunEvent objects.
+//
+// Source of the events:
+//   - ONELINE_LIVE=1: the real core pipeline via the Python live runner
+//     (real Gemini Managed Agents build plus real Cloud Run deploy).
+//   - otherwise: the offline demoEngine, so rehearsal works with no services.
+// Both produce the same RunEvent shape, so the dashboard renders either path
+// identically.
 
 import { runEngine } from "@/lib/demoEngine";
 import type { RunEvent } from "@/lib/events";
+import { runLive } from "@/lib/liveBridge";
 import type { Lesson } from "@/lib/types";
 
 // Needs the Node runtime for the deploy client (child_process and fs).
@@ -37,8 +45,10 @@ export async function POST(req: Request): Promise<Response> {
           // controller already closed by a client disconnect
         }
       };
+      const live = process.env.ONELINE_LIVE === "1";
+      const source = live ? runLive(need) : runEngine({ need, sessionLessons });
       try {
-        for await (const event of runEngine({ need, sessionLessons })) {
+        for await (const event of source) {
           send(event);
         }
       } catch (e) {

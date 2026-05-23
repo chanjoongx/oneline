@@ -36,6 +36,43 @@ event shapes a live core run produces, with the deploy simulated so it works
 fully offline. The three columns, the split result, the phone mockup, and the
 learning loop all work with no external services.
 
+## Live core pipeline
+
+With `ONELINE_LIVE=1` the dashboard drives the real core pipeline instead of the
+offline engine: real Gemini Managed Agents builds in three sandboxes, the real
+three-layer judge, and the real Cloud Run deploy.
+
+```bash
+ONELINE_LIVE=1 npm run dev          # needs GEMINI_API_KEY in the environment
+```
+
+How it works: `/api/run` spawns the core event entry point,
+`python -m core.live --events "<need>"`, which runs `orchestrator.run` with the
+real components and writes one JSON object per line on stdout
+(`{ "event", "t", "data" }`). The bridge (`lib/liveBridge.ts`) maps that stream
+to the same SSE shape the dashboard already renders, so the three columns, code
+previews, scores, winner, QR, and phone preview fill live. Core emits
+per-candidate `candidate_built` (with html) and `candidate_judged` (with full
+scores) from its build and judge worker threads, so each column fills the moment
+that sandbox finishes. The winner preview appears at selection time, before the
+deploy returns. The full lesson list for the knowledge base panel is read from
+the on-disk knowledge base that core just wrote.
+
+With `ONELINE_LIVE` unset (or not `1`) the offline `demoEngine` runs instead, so
+rehearsal works with no services. Flip the flag to switch.
+
+For a credential-free smoke test of the live wiring (subprocess, stream, and
+SSE mapping), `live_runner.py` mirrors the exact `core.live --events` shape over
+stub deps and a temp knowledge base that never touches `shared/`:
+
+```bash
+ONELINE_LIVE=1 ONELINE_LIVE_STUB=1 npm run dev
+```
+
+Live overrides: `ONELINE_JUDGE` (`live` strict default, or `default`),
+`ONELINE_DEPLOY_DRYRUN=1` to simulate the deploy in the live path, `PYTHON` to
+point at a specific interpreter.
+
 ## Live Cloud Run deploy
 
 Turn on the real deploy:
@@ -90,17 +127,19 @@ shape changes happen in `shared/` first.
 web/
   app/
     layout.tsx, page.tsx, globals.css
-    api/run/route.ts     SSE pipeline stream
+    api/run/route.ts     SSE pipeline stream, live or demo
     api/kb/route.ts      seed knowledge base, read only
   components/            dashboard, columns, result split, phone, QR, kb panel
   lib/
     types.ts             shared shape mirrors
     events.ts            SSE event protocol
-    demoEngine.ts        pipeline driver, schema accurate
+    demoEngine.ts        offline pipeline driver, schema accurate
+    liveBridge.ts        spawns the live runner, maps its events to SSE
     deployClient.ts      server side deploy invocation, simulate or real
     kb.ts                seed reader
     useRun.ts            client hook, SSE consumer, localStorage kb state
     fixtures/            working single-file tools (timer, flashcards, ...)
+  live_runner.py         offline stub mirror of core.live --events for testing
   deployer.py            canonical Cloud Run deploy client and Protocol impl
   scripts/prewarm.py     pre-provision the pool
 ```

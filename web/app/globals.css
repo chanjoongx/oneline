@@ -50,6 +50,36 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ---- Dark, thin scrollbars so no white browser scrollbars show on the
+   dark surface. Applies to the dashboard document only; the preview iframe is
+   a separate document. ---- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-2) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--surface-2);
+  border-radius: var(--radius-pill);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--border);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 /* ---- Shell and header ---- */
 .db-shell {
   display: flex;
@@ -171,10 +201,12 @@ body {
 .db-phase {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
   gap: 6px;
   padding: 10px 24px;
   border-bottom: 1px solid var(--border);
-  overflow-x: auto;
+  /* The six steps fit on a landscape laptop, so no scrollbar is needed. */
+  overflow: hidden;
 }
 
 .db-phase-step {
@@ -239,7 +271,10 @@ body {
   min-height: 0;
   padding: 16px;
   gap: 16px;
-  overflow: hidden;
+  /* Scroll cleanly when candidates plus the result exceed the viewport, so the
+     QR, link, and phone mockup are never clipped. */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .db-sidebar {
@@ -263,10 +298,10 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 12px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
@@ -399,7 +434,7 @@ body {
   font-size: 10.5px;
   line-height: 1.45;
   color: var(--text-muted);
-  height: 108px;
+  height: 84px;
   overflow: auto;
   white-space: pre;
 }
@@ -486,11 +521,14 @@ body {
 
 /* ---- Result area: split QR and phone ---- */
 .db-result {
+  /* Grow to use spare height on tall screens, but never below a height that
+     fits the QR stack and a usable phone. The page scrolls when it cannot fit. */
   flex: 1 1 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: minmax(0, 1fr);
   gap: 16px;
-  min-height: 360px;
+  min-height: clamp(420px, 52vh, 720px);
 }
 
 .db-result-left,
@@ -510,6 +548,9 @@ body {
   gap: 16px;
   padding: 24px;
   text-align: center;
+  /* Scroll inside the panel if the QR stack is taller than a short panel,
+     rather than spilling over the card edge. */
+  overflow: auto;
 }
 
 .db-result-right {
@@ -519,6 +560,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  overflow: hidden;
 }
 
 .db-half-label {

@@ -50,7 +50,20 @@ npm run dev
 
 Type a tool you need. By default the dashboard runs a self-contained engine that produces the same three-candidate build, judging, selection, and QR steps as a live run, with the deploy simulated, so it works with no API keys or cloud access.
 
-To run the real pipeline you need Python 3.12+ and a Gemini API key:
+To drive the real pipeline straight from the dashboard, set `ONELINE_LIVE=1`:
+
+```bash
+export GEMINI_API_KEY=your-key          # PowerShell: $env:GEMINI_API_KEY="your-key"
+export ONELINE_PROJECT=your-gcp-project  # your Cloud Run project id
+export ONELINE_REGION=your-region        # e.g. us-central1
+
+ONELINE_LIVE=1 npm run dev
+# open http://localhost:3000
+```
+
+Now the dashboard runs the real core pipeline: each candidate builds in its own Gemini Managed Agents sandbox, the three-layer judge scores them, and the winning tool deploys to Cloud Run. This path needs a Gemini API key, `gcloud` authenticated for the deploy, and `ONELINE_PROJECT` and `ONELINE_REGION` set to your own Cloud Run target.
+
+You can also run a single request end to end from the command line with Python 3.12+ and a Gemini API key:
 
 ```bash
 export GEMINI_API_KEY=your-key        # PowerShell: $env:GEMINI_API_KEY="your-key"
@@ -63,7 +76,7 @@ pip install -r judges/requirements.txt
 python -m core.live "interval timer, 90 seconds work 30 rest, 8 rounds"
 ```
 
-The live path builds each candidate in a Gemini Managed Agents sandbox and, with `gcloud` authenticated, deploys the winner to Cloud Run. To drive the live deploy from the dashboard instead, run it with `ONELINE_DEPLOY_REAL=1 npm run dev`, and point it at your own Cloud Run target with `ONELINE_PROJECT` and `ONELINE_REGION`. Each module's `README.md` documents its own entry points and tests.
+Each module's `README.md` documents its own entry points and tests.
 
 ## What it is not
 

@@ -1,6 +1,6 @@
 # Oneline
 
-> Software for one. Describe the exact tool you need and get it running on your phone in under a minute. Built for the person asking, not a market.
+> Software for one. Describe the exact tool you need and get it running on your phone in about two minutes. Built for the person asking, not a market.
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=Lm403MpBo_Y">
@@ -20,13 +20,13 @@ Oneline lets you speak that need and get a working tool back. You are not a make
 
 ## How it works
 
-You type a need in plain language. About a minute later you scan a QR code and the finished tool opens on your phone.
+You type a need in plain language. About two minutes later you scan a QR code and the finished tool opens on your phone.
 
 <p align="center">
   <img src="assets/how-it-works.png" alt="Four steps: describe the tool, build three candidates, judge them, deploy the winner" width="100%">
 </p>
 
-Inside that minute:
+Inside those two minutes:
 
 1. A planner reads the request, trims it to the essential scope, and writes three different build strategies.
 2. Three candidate tools build in parallel, each in its own Gemini Managed Agents sandbox.

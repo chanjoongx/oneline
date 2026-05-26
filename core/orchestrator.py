@@ -158,12 +158,25 @@ def run(need: str, deps: Optional[Deps] = None) -> dict:
     #    not sink the request; survivors proceed.
     strategies = plan.get("candidate_strategies", [])[: deps.max_candidates]
     brief = _brief(need, plan)
-    _emit(deps, "build_start", {"strategies": [s.get("id") for s in strategies]})
+    _emit(deps, "build_start", {"strategies": strategies})
 
     def _build(strategy):
-        return parallel.resolve(
+        candidate = parallel.resolve(
             deps.implementer.build_candidate(strategy, brief, retrieved["retrieved_lessons"])
         )
+        # Per-candidate event from the worker thread, so the dashboard column for
+        # this candidate fills the moment its sandbox finishes. on_event must be
+        # thread-safe (the live emitters lock around the write).
+        _emit(deps, "candidate_built", {
+            "candidate_id": candidate.get("candidate_id"),
+            "accent": candidate.get("accent"),
+            "framework": candidate.get("framework"),
+            "ux_emphasis": candidate.get("ux_emphasis"),
+            "steps": candidate.get("steps"),
+            "rationale": candidate.get("rationale"),
+            "html": candidate.get("html"),
+        })
+        return candidate
 
     candidates = []
     build_errors = []
@@ -196,7 +209,17 @@ def run(need: str, deps: Optional[Deps] = None) -> dict:
     # 4. Judge candidates concurrently, then merge headline scores. A judge
     #    failure drops that candidate; the rest stay selectable.
     def _judge(candidate):
-        return parallel.resolve(deps.judge.judge(candidate, plan))
+        scores = parallel.resolve(deps.judge.judge(candidate, plan))
+        _emit(deps, "candidate_judged", {
+            "candidate_id": scores.get("candidate_id", candidate.get("candidate_id")),
+            "functionality_score": scores.get("functionality_score"),
+            "ux_clarity_score": scores.get("ux_clarity_score"),
+            "design_coherence_score": scores.get("design_coherence_score"),
+            "functionality": scores.get("functionality"),
+            "ux_clarity": scores.get("ux_clarity"),
+            "design_coherence": scores.get("design_coherence"),
+        })
+        return scores
 
     scored = []
     judge_scores_by_id = {}

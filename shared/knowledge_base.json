@@ -14,6 +14,36 @@
       "score_delta": -0.4,
       "applied_count": 0,
       "prevented_repeats": 0
+    },
+    {
+      "id": "lesson_002",
+      "created_at": "2026-05-23T23:07:23Z",
+      "tool_category": "calculator",
+      "lesson_class": "ux_clarity",
+      "ux_anti_pattern": "production_app_smell",
+      "tags": ["calculator", "mobile_first"],
+      "lesson_text": "Avoid pre-populating interactive inputs with hardcoded dummy or test values on initial load. Use clear placeholders instead, allowing users to immediately enter their own data without the friction of clearing pre-filled text.",
+      "bad_pattern": "Pre-populating a bill input with '100.00' on load, forcing the user to tap, select all, and delete before entering their actual bill.",
+      "good_pattern": "Leaving the input empty with a placeholder of '0.00', displaying a neutral or zeroed-out initial state until the user inputs data.",
+      "severity": "medium",
+      "score_delta": -0.22,
+      "applied_count": 0,
+      "prevented_repeats": 0
+    },
+    {
+      "id": "lesson_003",
+      "created_at": "2026-05-23T23:07:34Z",
+      "tool_category": "calculator",
+      "lesson_class": "design_coherence",
+      "ux_anti_pattern": "typography_inconsistency",
+      "tags": ["calculator", "mobile_first", "typography_inconsistency"],
+      "lesson_text": "Avoid overriding strict design system typography tokens with arbitrary inline font sizes or custom weights. Always adhere to the defined type scale to maintain visual harmony and prevent layout breakage on small screens.",
+      "bad_pattern": "Using inline styles to set a custom font size like 56px or custom weights on text elements, bypassing the design system's strict CSS variables.",
+      "good_pattern": "Relying exclusively on predefined utility classes and CSS variables like var(--t-hero-size) to style text elements consistently.",
+      "severity": "high",
+      "score_delta": -0.9,
+      "applied_count": 0,
+      "prevented_repeats": 0
     }
   ]
 }
